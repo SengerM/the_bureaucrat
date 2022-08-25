@@ -112,7 +112,7 @@ class _TaskBureaucrat(RunBureaucrat):
 			raise RuntimeError(f'A {TaskBureaucrat} can only be used once, and this one has already been used! If you want to do a new task just hire a new bureaucrat, it is free.')
 		
 		if self._drop_old_data == True and self.path_to_directory_of_task(self.task_name).is_dir():
-			self.path_to_directory_of_task(self.task_name).rename(self.path_to_temporary_directory/'backup')
+			self.clean_directory_of_my_task()
 		self.path_to_directory_of_task(self.task_name).mkdir(exist_ok=True)
 		
 		return self
@@ -135,3 +135,11 @@ class _TaskBureaucrat(RunBureaucrat):
 		some_bureaucrat = RunBureaucrat(path_to_the_run=self.path_to_directory_of_my_task/f'subruns/{subrun_name}')
 		some_bureaucrat.create_run()
 		return some_bureaucrat
+	
+	def clean_directory_of_my_task(self):
+		"""Deletes all content in the default output directory."""
+		for p in self.path_to_directory_of_my_task.iterdir():
+			if p.is_file():
+				p.unlink()
+			elif p.is_dir():
+				rmtree(p)
