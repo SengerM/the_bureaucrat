@@ -9,8 +9,8 @@ import warnings
 
 def measure_black_box(A:float, B:float)->float:
 	print('Measuring black box!')
-	time.sleep(numpy.random.exponential(scale=max(min(A,.5),.1)))
-	return (A**2*B**3) + numpy.random.randn()
+	# ~ time.sleep(numpy.random.exponential(scale=max(min(A,.5),.1)))
+	return (A**2*B**3)*(1 + .1*numpy.random.randn()) + numpy.random.randn()
 
 def create_a_timestamp():
 	time.sleep(1) # This is to ensure that no two timestamps are the same.
@@ -125,8 +125,8 @@ if __name__ == '__main__':
 	)
 	measure_black_box_sweeping_A_and_B(
 		bureaucrat = John,
-		As = [0,1,2,3,4],
-		Bs = [-1,0,1],
+		As = numpy.linspace(0,5,22),
+		Bs = [-2,-1,0,1,2],
 		number_of_measurements_at_each_point = 4,
 	)
 	plot_black_box_vs_A_and_B(John)
