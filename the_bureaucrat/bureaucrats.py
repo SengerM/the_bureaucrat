@@ -149,7 +149,7 @@ class RunBureaucrat:
 			raise ValueError(f'`tasks_names` must be a list of strings.')
 		were_run = all([self.was_task_run_successfully(task_name) for task_name in tasks_names])
 		if raise_error == True and were_run == False:
-			raise RuntimeError(f'Not all tasks {tasks_names} were successfully run beforehand. ')
+			raise RuntimeError(f'Not all tasks {tasks_names} were successfully run beforehand on run {repr(self.run_name)} located in {self.path_to_run_directory}.')
 		return were_run
 	
 	def create_run(self, raise_error:bool=False):
