@@ -9,7 +9,7 @@ import warnings
 
 def measure_black_box(A:float, B:float)->float:
 	print('Measuring black box!')
-	# ~ time.sleep(numpy.random.exponential(scale=max(min(A,.5),.1)))
+	time.sleep(numpy.random.exponential(scale=max(min(A,.5),.1)))
 	return (A**2*B**3)*(1 + .1*numpy.random.randn()) + numpy.random.randn()
 
 def create_a_timestamp():
@@ -33,6 +33,22 @@ def measure_black_box_many_times(bureaucrat:RunBureaucrat, A:float, B:float, num
 			measurements.append(measured_stuff)
 		measurements_df = pandas.DataFrame(measurements).set_index('n_measurement')
 		measurements_df.to_csv(Raúl.path_to_directory_of_my_task/'results.csv')
+
+def plot_measurements_vs_time(bureaucrat:RunBureaucrat):
+	Pedro = bureaucrat
+	Pedro.check_these_tasks_were_run_successfully('measure_black_box_many_times')
+	data_df = pandas.read_csv(Pedro.path_to_directory_of_task('measure_black_box_many_times')/'results.csv')
+	fig = px.line(
+		data_df.sort_values('When'),
+		x = 'When',
+		y = 'black_box',
+		markers = True,
+	)
+	with Pedro.handle_task('plot_measurements_vs_time') as employee:
+		fig.write_html(
+			str(employee.path_to_directory_of_my_task/'measurements_vs_time.html'),
+			include_plotlyjs = 'cdn',
+		)
 
 def measure_black_box_sweeping_A(bureaucrat:RunBureaucrat, As:list, B:float, number_of_measurements_at_each_point:int):
 	Quique = bureaucrat
@@ -118,15 +134,16 @@ def plot_black_box_vs_A_and_B(bureaucrat:RunBureaucrat):
 			str(employee.path_to_directory_of_my_task/'black_box_vs_A_for_different_Bs.html'),
 			include_plotlyjs = 'cdn',
 		)
+		data_df.to_csv(employee.path_to_directory_of_my_task/'data.csv', index=False)
 
 if __name__ == '__main__':
 	John = RunBureaucrat(
 		Path.home()/Path(f'deleteme/{create_a_timestamp()}_main_run'),
 	)
-	measure_black_box_sweeping_A_and_B(
-		bureaucrat = John,
-		As = numpy.linspace(0,5,22),
-		Bs = [-2,-1,0,1,2],
-		number_of_measurements_at_each_point = 4,
+	measure_black_box_many_times(
+		bureaucrat = John, 
+		A = 1, 
+		B = 2, 
+		number_of_measurements = 99,
 	)
-	plot_black_box_vs_A_and_B(John)
+	plot_measurements_vs_time(John)
