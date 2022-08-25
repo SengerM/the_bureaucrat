@@ -9,10 +9,8 @@ import warnings
 
 def measure_black_box(A:float, B:float)->float:
 	print('Measuring black box!')
-	if numpy.random.rand()<.1:
-		raise RuntimeError(f'Error measuring the black box!')
 	time.sleep(numpy.random.exponential(scale=max(min(A,.5),.1)))
-	return (A**2+B**.5) + numpy.random.randn()
+	return (A**2*B**3) + numpy.random.randn()
 
 def create_a_timestamp():
 	time.sleep(1) # This is to ensure that no two timestamps are the same.
@@ -60,6 +58,7 @@ def plot_black_box_vs_A(bureaucrat:RunBureaucrat):
 		data.append(measured_data_df)
 	data_df = pandas.concat(data)
 	with Pedro.handle_task('plot_black_box_vs_A') as Pedros_subordinate:
+		data_df.to_csv(Pedros_subordinate.path_to_directory_of_my_task/'data.csv', index=False)
 		fig = px.line(
 			data_df,
 			x = 'When',
@@ -83,14 +82,51 @@ def plot_black_box_vs_A(bureaucrat:RunBureaucrat):
 			include_plotlyjs = 'cdn',
 		)
 
+def measure_black_box_sweeping_A_and_B(bureaucrat:RunBureaucrat, As:list, Bs:list, number_of_measurements_at_each_point:int):
+	Viviana = bureaucrat
+	Viviana.create_run()
+	with Viviana.handle_task('measure_black_box_sweeping_A_and_B') as Vivianas_employee:
+		for B in Bs:
+			measure_black_box_sweeping_A(
+				Vivianas_employee.create_subrun(f'black_box_with_B_{B}_sweeping_A'),
+				As,
+				B,
+				number_of_measurements_at_each_point,
+			)
+
+def plot_black_box_vs_A_and_B(bureaucrat:RunBureaucrat):
+	Pedro = bureaucrat
+	Pedro.check_these_tasks_were_run_successfully('measure_black_box_sweeping_A_and_B')
+	data = []
+	for run_name,path_to_run in Pedro.list_subruns_of_task('measure_black_box_sweeping_A_and_B').items():
+		Johana = RunBureaucrat(path_to_run)
+		plot_black_box_vs_A(Johana)
+		Johana.check_these_tasks_were_run_successfully('plot_black_box_vs_A')
+		measured_data_df = pandas.read_csv(Johana.path_to_directory_of_task('plot_black_box_vs_A')/'data.csv')
+		# ~ measured_data_df['run_name'] = run_name
+		data.append(measured_data_df)
+	data_df = pandas.concat(data)
+	fig = px.line(
+		data_df.groupby('run_name').mean().reset_index().sort_values(['A','B']),
+		x = 'A',
+		y = 'black_box',
+		color = 'B',
+		markers = True,
+	)
+	with Pedro.handle_task('plot_black_box_vs_A_and_B') as employee:
+		fig.write_html(
+			str(employee.path_to_directory_of_my_task/'black_box_vs_A_for_different_Bs.html'),
+			include_plotlyjs = 'cdn',
+		)
+
 if __name__ == '__main__':
 	John = RunBureaucrat(
-		path_to_the_run = Path.home()/Path(f'deleteme/{create_a_timestamp()}_main_run'),
+		Path.home()/Path(f'deleteme/{create_a_timestamp()}_main_run'),
 	)
-	measure_black_box_sweeping_A(
+	measure_black_box_sweeping_A_and_B(
 		bureaucrat = John,
-		As = [0,5,10,15],
-		B = 3,
+		As = [0,1,2,3,4],
+		Bs = [-1,0,1],
 		number_of_measurements_at_each_point = 4,
 	)
-	plot_black_box_vs_A(John)
+	plot_black_box_vs_A_and_B(John)
