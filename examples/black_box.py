@@ -5,11 +5,14 @@ import pandas
 import numpy
 import time
 import plotly.express as px
+import warnings
 
 def measure_black_box(A:float, B:float)->float:
 	print('Measuring black box!')
+	if numpy.random.rand()<.1:
+		raise RuntimeError(f'Error measuring the black box!')
 	time.sleep(numpy.random.exponential(scale=max(min(A,.5),.1)))
-	return (A**2+B**.5)/(A+B+1) + numpy.random.randn()
+	return (A**2+B**.5) + numpy.random.randn()
 
 def create_a_timestamp():
 	time.sleep(1) # This is to ensure that no two timestamps are the same.
@@ -39,7 +42,7 @@ def measure_black_box_sweeping_A(bureaucrat:RunBureaucrat, As:list, B:float, num
 	with Quique.handle_task('measure_black_box_sweeping_A') as Ernesto:
 		for A in As:
 			measure_black_box_many_times(
-				Ernesto.create_subrun(f'{create_a_timestamp()}_measure_black_box'),
+				Ernesto.create_subrun(f'black_box_with_A_{A}_and_B_{B}'),
 				A,
 				B,
 				number_of_measurements_at_each_point,
@@ -57,7 +60,6 @@ def plot_black_box_vs_A(bureaucrat:RunBureaucrat):
 		data.append(measured_data_df)
 	data_df = pandas.concat(data)
 	with Pedro.handle_task('plot_black_box_vs_A') as Pedros_subordinate:
-		print(data_df)
 		fig = px.line(
 			data_df,
 			x = 'When',
@@ -82,14 +84,13 @@ def plot_black_box_vs_A(bureaucrat:RunBureaucrat):
 		)
 
 if __name__ == '__main__':
-	# ~ John = RunBureaucrat(
-		# ~ path_to_the_run = Path.home()/Path(f'deleteme/{create_a_timestamp()}_main_run'),
-	# ~ )
-	John = RunBureaucrat(Path('/home/alf/deleteme/20220825104818_main_run'))
-	# ~ measure_black_box_sweeping_A(
-		# ~ bureaucrat = John,
-		# ~ As = [0,5,10],
-		# ~ B = 3,
-		# ~ number_of_measurements_at_each_point = 11,
-	# ~ )
+	John = RunBureaucrat(
+		path_to_the_run = Path.home()/Path(f'deleteme/{create_a_timestamp()}_main_run'),
+	)
+	measure_black_box_sweeping_A(
+		bureaucrat = John,
+		As = [0,5,10,15],
+		B = 3,
+		number_of_measurements_at_each_point = 4,
+	)
 	plot_black_box_vs_A(John)
