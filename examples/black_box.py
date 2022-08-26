@@ -17,7 +17,7 @@ def create_a_timestamp():
 	return datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
 def measure_black_box_many_times(bureaucrat:RunBureaucrat, A:float, B:float, number_of_measurements:int):
-	Maria = bureaucrat # Let's give him a proper name.
+	Maria = bureaucrat # Let's give her a proper name.
 	Maria.create_run()
 	with Maria.handle_task('measure_black_box_many_times') as Raúl: # Now this will handle the task.
 		measurements = []
@@ -33,7 +33,7 @@ def measure_black_box_many_times(bureaucrat:RunBureaucrat, A:float, B:float, num
 			measurements.append(measured_stuff)
 		measurements_df = pandas.DataFrame(measurements).set_index('n_measurement')
 		measurements_df.to_csv(Raúl.path_to_directory_of_my_task/'results.csv')
-
+	
 def plot_measurements_vs_time(bureaucrat:RunBureaucrat):
 	Pedro = bureaucrat
 	Pedro.check_these_tasks_were_run_successfully('measure_black_box_many_times')
@@ -144,6 +144,6 @@ if __name__ == '__main__':
 		bureaucrat = John, 
 		A = 1, 
 		B = 2, 
-		number_of_measurements = 99,
+		number_of_measurements = 9,
 	)
 	plot_measurements_vs_time(John)
