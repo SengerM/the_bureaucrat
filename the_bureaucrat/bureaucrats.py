@@ -5,6 +5,7 @@ import time
 import datetime
 import tempfile
 import traceback
+import shutil
 
 def find_ugly_characters_better_to_avoid_in_paths(path:Path):
 	"""Returns a set of characters that are considered as not nice options
@@ -171,7 +172,7 @@ class RunBureaucrat:
 				run_name = self.run_name,
 			)
 	
-	def handle_task(self, task_name:str, drop_old_data:bool=True):
+	def handle_task(self, task_name:str, drop_old_data:bool=True, backup_this_python_file:bool=True):
 		"""This method is used to create a new "subordinate bureaucrat" 
 		of type `TaskBureaucrat` that will manage a task (instead of a
 		run) within the run being managed by the current `RunBureaucrat`.
@@ -192,6 +193,11 @@ class RunBureaucrat:
 			from a previous execution will be deleted. This ensures that
 			in the end all the contents belong to the latest execution
 			and it is not mixed with old stuff.
+		backup_this_python_file: bool, default True
+			If `True`, the file where `handle_task` is being called will
+			be backed up in the respective task directory, i.e. a copy
+			will be created there. Thus, in the future you will be able
+			to know how you did things in case you forget.
 		
 		Returns
 		-------
@@ -203,10 +209,11 @@ class RunBureaucrat:
 		return TaskBureaucrat(
 			path_to_the_run = self.path_to_run_directory,
 			task_name = task_name,
+			path_to_script_to_backup = Path(traceback.extract_stack()[-2].filename)
 		)
 	
 class TaskBureaucrat(RunBureaucrat):
-	def __init__(self, path_to_the_run:Path, task_name:str, drop_old_data:bool=True):
+	def __init__(self, path_to_the_run:Path, task_name:str, drop_old_data:bool=True, path_to_script_to_backup:Path=None):
 		"""Create a `TaskBureaucrat`.
 		
 		Arguments
@@ -225,6 +232,7 @@ class TaskBureaucrat(RunBureaucrat):
 		super().__init__(path_to_the_run=path_to_the_run)
 		self._task_name = task_name
 		self._drop_old_data = drop_old_data
+		self._path_to_script_to_backup = path_to_script_to_backup
 	
 	@property
 	def task_name(self)->str:
@@ -260,6 +268,9 @@ class TaskBureaucrat(RunBureaucrat):
 				print('---', file=ofile)
 				traceback.print_tb(exc_traceback, file=ofile)
 				print(f'{exc_type.__name__}: {exc_value}', file=ofile)
+		
+		if self._path_to_script_to_backup is not None:
+			shutil.copyfile(self._path_to_script_to_backup, self.path_to_directory_of_my_task/f'backup.{self._path_to_script_to_backup.parts[-1]}')
 	
 	def create_subrun(self, subrun_name:str)->RunBureaucrat:
 		"""Create a subrun within the current task.

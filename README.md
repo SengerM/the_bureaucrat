@@ -42,6 +42,8 @@ else:
 
 If for some reason some error occurs while `measure_thing` is ongoing, it will not pass unnoticed when you want to use that data in the future.
 
+Furthermore, a backup of the python file in which the task was created will be automatically stored in the respective task directory. Then you can have a hint on how you did things in case you forget in the future.
+
 For more examples, see [here](examples).
 
 # Additional info
@@ -50,4 +52,4 @@ This package is thought to handle runs, each run can contain any number of tasks
 
 ![blah](doc/diagram.svg)
 
-An example that creates such tree-like structure is presented in [black_box.py](examples/black_box.py) within the [examples](examples) directory. Advantages of this approach: It can tackle a quite complex and tedious problem splitting it in very simple ones.
+An example that creates such tree-like structure is presented in [black_box](examples/black_box) within the [examples](examples) directory. Advantages of this approach: It can tackle a quite complex and tedious problem splitting it in very simple ones.
