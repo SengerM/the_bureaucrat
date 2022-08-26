@@ -171,10 +171,10 @@ class RunBureaucrat:
 				run_name = self.run_name,
 			)
 	
-	def handle_task(self, task_name:str):
+	def handle_task(self, task_name:str, drop_old_data:bool=True):
 		"""This method is used to create a new "subordinate bureaucrat" 
-		of type `TaskBureaucrat` that will handle a task (instead of a
-		run) within the run being handled by the current `RunBureaucrat`.
+		of type `TaskBureaucrat` that will manage a task (instead of a
+		run) within the run being managed by the current `RunBureaucrat`.
 		
 		This method was designed for being used together with a `with` 
 		statement, e.g.
@@ -187,6 +187,11 @@ class RunBureaucrat:
 		---------
 		task_name: str
 			The name of the task to handle by the new bureaucrat.
+		drop_old_data: bool, dafault True
+			If `True` then any data that may exist in the given task e.g.
+			from a previous execution will be deleted. This ensures that
+			in the end all the contents belong to the latest execution
+			and it is not mixed with old stuff.
 		
 		Returns
 		-------
@@ -199,7 +204,7 @@ class RunBureaucrat:
 			path_to_the_run = self.path_to_run_directory,
 			task_name = task_name,
 		)
-		
+	
 class TaskBureaucrat(RunBureaucrat):
 	def __init__(self, path_to_the_run:Path, task_name:str, drop_old_data:bool=True):
 		"""Create a `TaskBureaucrat`.
