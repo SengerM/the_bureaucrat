@@ -53,3 +53,4 @@ This package is thought to handle runs, each run can contain any number of tasks
 ![blah](doc/diagram.svg)
 
 An example that creates such tree-like structure is presented in [black_box](examples/black_box) within the [examples](examples) directory. Advantages of this approach: It can tackle a quite complex and tedious problem splitting it in very simple ones.
+# the_bureaucrat
