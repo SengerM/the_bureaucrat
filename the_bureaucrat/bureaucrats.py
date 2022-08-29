@@ -93,15 +93,17 @@ class RunBureaucrat:
 		```
 		where `run_name` are the names of the subruns for the `task_name` 
 		and `path` are `Path` objects pointing to each subrun. If the task
-		has no subruns, or if it does not exist, an empty dictionary is
-		returned.
+		has no subruns an empty dictionary is returned. If the task does
+		not exist or was not completed successfully, a `RuntimeError` is raised.
 		
 		Arguments
 		---------
 		task_name: str
 			The name of the task.
 		"""
-		if self._path_to_directory_of_subruns_of_task(task_name).is_dir():
+		if not self.was_task_run_successfully(task_name):
+			raise RuntimeError(f'Task named {repr(task_name)} either does not exist or was not completed successfully in run {self.run_name}.')
+		if self._path_to_directory_of_subruns_of_task(task_name).exists():
 			return {p.parts[-1]: p for p in (self._path_to_directory_of_subruns_of_task(task_name)).iterdir() if p.is_dir()}
 		else:
 			return dict()
