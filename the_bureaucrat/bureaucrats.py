@@ -209,6 +209,7 @@ class RunBureaucrat:
 		return TaskBureaucrat(
 			path_to_the_run = self.path_to_run_directory,
 			task_name = task_name,
+			drop_old_data = drop_old_data,
 			path_to_script_to_backup = Path(traceback.extract_stack()[-2].filename)
 		)
 	
