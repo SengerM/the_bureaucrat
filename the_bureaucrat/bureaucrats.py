@@ -293,7 +293,7 @@ class TaskBureaucrat(RunBureaucrat):
 		new_run_bureaucrat: RunBureaucrat
 			A newly created `RunBureaucrat` ready to handle the new subrun.
 		"""
-		some_bureaucrat = RunBureaucrat(path_to_the_run=self._path_to_directory_of_subruns_of_task(subrun_name))
+		some_bureaucrat = RunBureaucrat(path_to_the_run=self._path_to_directory_of_subruns_of_task(self.task_name)/subrun_name)
 		some_bureaucrat.create_run()
 		return some_bureaucrat
 	
