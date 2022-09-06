@@ -65,6 +65,10 @@ class RunBureaucrat:
 		if not hasattr(self, '_temporary_directory'):
 			self._temporary_directory = tempfile.TemporaryDirectory()
 		return Path(self._temporary_directory.name)
+	
+	def _path_to_directory_of_subruns_of_task(self, task_name:str)->Path:
+		"""Returns a `Path` pointing to where the subruns should be found."""
+		return self.path_to_directory_of_task(task_name=task_name)/'subruns'
 		
 	def path_to_directory_of_task(self, task_name:str)->Path:
 		"""Returns a `Path` pointing to the directory of a task named 
@@ -89,17 +93,20 @@ class RunBureaucrat:
 		```
 		where `run_name` are the names of the subruns for the `task_name` 
 		and `path` are `Path` objects pointing to each subrun. If the task
-		has no subruns, or if it does not exist, `None` is returned.
+		has no subruns an empty dictionary is returned. If the task does
+		not exist or was not completed successfully, a `RuntimeError` is raised.
 		
 		Arguments
 		---------
 		task_name: str
 			The name of the task.
 		"""
-		try:
-			return {p.parts[-1]: p for p in (self.path_to_directory_of_task(task_name)/'subruns').iterdir()}
-		except FileNotFoundError:
-			return None
+		if not self.was_task_run_successfully(task_name):
+			raise RuntimeError(f'Task named {repr(task_name)} either does not exist or was not completed successfully in run {self.run_name}.')
+		if self._path_to_directory_of_subruns_of_task(task_name).exists():
+			return {p.parts[-1]: p for p in (self._path_to_directory_of_subruns_of_task(task_name)).iterdir() if p.is_dir()}
+		else:
+			return dict()
 	
 	def was_task_run_successfully(self, task_name:str)->bool:
 		"""If `task_name` was successfully run beforehand returns `True`,
@@ -286,7 +293,7 @@ class TaskBureaucrat(RunBureaucrat):
 		new_run_bureaucrat: RunBureaucrat
 			A newly created `RunBureaucrat` ready to handle the new subrun.
 		"""
-		some_bureaucrat = RunBureaucrat(path_to_the_run=self.path_to_directory_of_my_task/f'subruns/{subrun_name}')
+		some_bureaucrat = RunBureaucrat(path_to_the_run=self._path_to_directory_of_subruns_of_task(subrun_name))
 		some_bureaucrat.create_run()
 		return some_bureaucrat
 	
