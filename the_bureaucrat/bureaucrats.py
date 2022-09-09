@@ -269,7 +269,10 @@ class TaskBureaucrat(RunBureaucrat):
 				print(f'{exc_type.__name__}: {exc_value}', file=ofile)
 		
 		if self._path_to_script_to_backup is not None:
-			shutil.copyfile(self._path_to_script_to_backup, self.path_to_directory_of_my_task/f'backup.{self._path_to_script_to_backup.parts[-1]}')
+			try:
+				shutil.copyfile(self._path_to_script_to_backup, self.path_to_directory_of_my_task/f'backup.{self._path_to_script_to_backup.parts[-1]}')
+			except FileNotFoundError as e:
+				warnings.warn(f'Cannot create backup of script, reason: {e}.')
 	
 	def create_subrun(self, subrun_name:str)->RunBureaucrat:
 		"""Create a subrun within the current task.
