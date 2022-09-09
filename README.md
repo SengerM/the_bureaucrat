@@ -8,28 +8,20 @@ A package to help organizing data and results in a directory structure, cross pl
 
 # Usage
 
-Below there is a simple usage example:
+Simple usage example:
 
 ```python
 from pathlib import Path
 from the_bureaucrat.bureaucrats import RunBureaucrat
 
-Michael = RunBureaucrat(
-	Path.home()/Path(f'measurements_data/todays_run'),
-)
-
+run_name = f'your_favourite_name'
+Michael = RunBureaucrat(STORE_DATA_HERE_PATH/run_name)
 Michael.create_run()
 
-with Michael.handle_task('measure_thing') as task_handler:
-	with open(task_handler.path_to_directory_of_my_task/'thing.txt', 'w') as ofile:
+with Michael.handle_task('measure_thing') as Michaels_employee:
+	with open(Michaels_employee.path_to_directory_of_my_task/'thing.txt', 'w') as ofile:
 		print(f'The measured thing is equal to 1', file=ofile)
 ```
-
-The steps are:
-
-1. Create a `RunBureaucrat`.
-2. Tell him to create a new run.
-3. Tell him to do a task (within that run).
 
 In the end this will create a directory for the run and within that directory as many subdirectories as tasks have been done. Also, each task will have a flag that will tell if it was completed successfully or if an error occurred, that can be checked later on, e.g.:
 
@@ -50,7 +42,6 @@ For more examples, see [here](examples).
 
 This package is thought to handle runs, each run can contain any number of tasks (each with a different name). Within each task anything can be stored, usually the results of such task e.g. the data from some measurement, some plots, etc. Each task can in turn contain subruns, which can contain tasks, and so. So it is a tree-like structure that is automatically created in the background.
 
-![blah](doc/diagram.svg)
+![blah](examples/PyHEP/img/diagram.svg)
 
 An example that creates such tree-like structure is presented in [black_box](examples/black_box) within the [examples](examples) directory. Advantages of this approach: It can tackle a quite complex and tedious problem splitting it in very simple ones.
-# the_bureaucrat
