@@ -38,10 +38,12 @@ Furthermore, a backup of the python file in which the task was created will be a
 
 For more examples, see [here](examples).
 
+Live example on the cloud: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SengerM/the_bureaucrat/HEAD?labpath=examples%2FPyHEP%2FPyHEP.ipynb)
+
 # Additional info
 
 This package is thought to handle runs, each run can contain any number of tasks (each with a different name). Within each task anything can be stored, usually the results of such task e.g. the data from some measurement, some plots, etc. Each task can in turn contain subruns, which can contain tasks, and so. So it is a tree-like structure that is automatically created in the background.
 
 ![blah](examples/PyHEP/img/diagram.svg)
 
-An example that creates such tree-like structure is presented in [black_box](examples/black_box) within the [examples](examples) directory. Advantages of this approach: It can tackle a quite complex and tedious problem splitting it in very simple ones.
+An example that creates such tree-like structure is presented in [black_box](examples/black_box) within the [examples](examples) directory.
