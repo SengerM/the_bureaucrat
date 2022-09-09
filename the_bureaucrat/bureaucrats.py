@@ -82,19 +82,10 @@ class RunBureaucrat:
 		"""
 		return self.path_to_run_directory/task_name
 	
-	def list_subruns_of_task(self, task_name:str)->dict:
-		"""Returns a dictionary of the form
-		```
-		{
-			run_name: path,
-			run_name: path,
-			...
-		}
-		```
-		where `run_name` are the names of the subruns for the `task_name` 
-		and `path` are `Path` objects pointing to each subrun. If the task
-		has no subruns an empty dictionary is returned. If the task does
-		not exist or was not completed successfully, a `RuntimeError` is raised.
+	def list_subruns_of_task(self, task_name:str)->list:
+		"""Returns a list of `RunBureaucrat`s pointing to the subruns.
+		If the task does not exist or was not completed successfully, 
+		a `RuntimeError` is raised.
 		
 		Arguments
 		---------
@@ -104,9 +95,9 @@ class RunBureaucrat:
 		if not self.was_task_run_successfully(task_name):
 			raise RuntimeError(f'Task named {repr(task_name)} either does not exist or was not completed successfully in run {self.run_name}.')
 		if self._path_to_directory_of_subruns_of_task(task_name).exists():
-			return {p.parts[-1]: p for p in (self._path_to_directory_of_subruns_of_task(task_name)).iterdir() if p.is_dir()}
+			return [RunBureaucrat(p) for p in (self._path_to_directory_of_subruns_of_task(task_name)).iterdir() if p.is_dir()]
 		else:
-			return dict()
+			return []
 	
 	def was_task_run_successfully(self, task_name:str)->bool:
 		"""If `task_name` was successfully run beforehand returns `True`,
