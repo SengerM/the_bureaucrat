@@ -38,7 +38,7 @@ Furthermore, a backup of the python file in which the task was created will be a
 
 For more examples, see [here](examples).
 
-Live example on the cloud: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SengerM/the_bureaucrat/HEAD?labpath=examples%2FPyHEP%2FPyHEP.ipynb)
+Live example on the cloud: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SengerM/the_bureaucrat/main?labpath=examples%2FPyHEP%2FPyHEP.ipynb)
 
 # Additional info
 
