@@ -92,8 +92,6 @@ class RunBureaucrat:
 		task_name: str
 			The name of the task.
 		"""
-		if not self.was_task_run_successfully(task_name):
-			raise RuntimeError(f'Task named {repr(task_name)} either does not exist or was not completed successfully in run {self.run_name}.')
 		if self._path_to_directory_of_subruns_of_task(task_name).exists():
 			return [RunBureaucrat(p) for p in (self._path_to_directory_of_subruns_of_task(task_name)).iterdir() if p.is_dir()]
 		else:
