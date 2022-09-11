@@ -137,17 +137,18 @@ class RunBureaucrat:
 		
 		Returns
 		-------
-		were_run: bool
-			`True` or `False` telling if all the tasks were run.
+		all_tasls_were_run: bool
+			`True` if all the tasks were run, else `False`.
 		"""
 		if isinstance(tasks_names, str):
 			tasks_names = [tasks_names]
 		if not isinstance(tasks_names, list) or not all([isinstance(task_name, str) for task_name in tasks_names]):
 			raise ValueError(f'`tasks_names` must be a list of strings.')
-		were_run = all([self.was_task_run_successfully(task_name) for task_name in tasks_names])
-		if raise_error == True and were_run == False:
-			raise RuntimeError(f'Not all tasks {tasks_names} were successfully run beforehand on run {repr(self.run_name)} located in {self.path_to_run_directory}.')
-		return were_run
+		tasks_not_run = [task_name for task_name in tasks_names if not self.was_task_run_successfully(task_name)]
+		all_tasks_were_run = len(tasks_not_run) == 0
+		if raise_error == True and not all_tasks_were_run:
+			raise RuntimeError(f"Task(s) {tasks_not_run} was(were)n't successfully run beforehand on run {repr(self.run_name)} located in {self.path_to_run_directory}.")
+		return all_tasks_were_run
 	
 	def create_run(self, raise_error:bool=False):
 		"""Creates a run where this `RunBureaucrat` is pointing to.
