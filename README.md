@@ -4,7 +4,9 @@ A package to help organizing data and results in a directory structure, cross pl
 
 # Installation
 
-`pip install git+https://github.com/SengerM/the_bureaucrat`
+```
+pip install git+https://github.com/SengerM/the_bureaucrat
+```
 
 # Usage
 
