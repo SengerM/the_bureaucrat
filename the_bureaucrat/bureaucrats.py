@@ -293,7 +293,7 @@ class TaskBureaucrat(RunBureaucrat):
 	def clean_directory_of_my_task(self):
 		"""Deletes all content in the default output directory."""
 		for p in self.path_to_directory_of_my_task.iterdir():
-			if p.is_file():
+			if p.is_file() or p.is_symlink():
 				p.unlink()
 			elif p.is_dir():
 				rmtree(p)
