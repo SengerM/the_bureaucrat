@@ -34,6 +34,13 @@ def exists_run(path_where_to_find_the_run:Path, run_name:str)->bool:
 	path_to_run = path_where_to_find_the_run/run_name
 	return (path_to_run/'bureaucrat_run_info.txt').is_file()
 
+def delete_directory_and_or_file_and_subtree(p:Path):
+	"""Delete whatever is in `p` and all its contents."""
+	if p.is_file() or p.is_symlink():
+		p.unlink()
+	elif p.is_dir():
+		rmtree(p)
+
 class RunBureaucrat:
 	def __init__(self, path_to_the_run:Path):
 		"""Create a `RunBureaucrat`.
@@ -150,24 +157,39 @@ class RunBureaucrat:
 			raise RuntimeError(f"Task(s) {tasks_not_run} was(were)n't successfully run beforehand on run {repr(self.run_name)} located in {self.path_to_run_directory}.")
 		return all_tasks_were_run
 	
-	def create_run(self, raise_error:bool=False):
+	def create_run(self, if_exists:str='raise error'):
 		"""Creates a run where this `RunBureaucrat` is pointing to.
 		
 		Arguments
 		---------
-		raise_error: bool, default False
-			If `True` a `RuntimeError` is raised if the run already exists. If
-			`False` no error is raised, if the run already exists in this
-			case nothing is done.
+		if_exists: str, default 'raise error'
+			Determines the behavior to follow if this method is called
+			and the run already exists according to the following options:
+			- `'raise error'`: A `RuntimeError` is raised if the run
+			already exists.
+			- `'override'`: If the run already exists, it will be deleted
+			(together with all its contents) and a new run will be 
+			created instead.
+			- `'skip'`: If the run already exists, nothing is done.
 		"""
+		OPTIONS_FOR_IF_EXISTS_ARGUMENT = {'raise error','override','skip'}
+		if if_exists not in OPTIONS_FOR_IF_EXISTS_ARGUMENT:
+			raise ValueError(f'`if_exists` must be one of {OPTIONS_FOR_IF_EXISTS_ARGUMENT}, received {repr(if_exists)}. ')
+		
 		if exists_run(self.path_to_run_directory.parent, self.run_name):
-			if raise_error:
-				raise RuntimeError(f'Cannot create run {self.run_name} in {self.path_to_run_directory} because it already exists.')
-		else:
-			create_run(
-				path_where_to_create_the_run = self.path_to_run_directory.parent,
-				run_name = self.run_name,
-			)
+			if if_exists == 'raise error':
+				raise RuntimeError(f'Cannot create run {repr(self.run_name)} in {self.path_to_run_directory} because it already exists.')
+			elif if_exists == 'override':
+				delete_directory_and_or_file_and_subtree(self.path_to_run_directory)
+			elif if_exists == 'skip':
+				return
+			else:
+				raise ValueError(f'Unexpected value received for argument `if_exists`. ')
+		
+		create_run(
+			path_where_to_create_the_run = self.path_to_run_directory.parent,
+			run_name = self.run_name,
+		)
 	
 	def handle_task(self, task_name:str, drop_old_data:bool=True, backup_this_python_file:bool=True):
 		"""This method is used to create a new "subordinate bureaucrat" 
@@ -273,13 +295,17 @@ class TaskBureaucrat(RunBureaucrat):
 			except FileNotFoundError as e:
 				warnings.warn(f'Cannot create backup of script, reason: {e}.')
 	
-	def create_subrun(self, subrun_name:str)->RunBureaucrat:
+	def create_subrun(self, subrun_name:str, if_exists:str='raise error')->RunBureaucrat:
 		"""Create a subrun within the current task.
 		
 		Arguments
 		---------
 		subrun_name: str
 			The name for the subrun.
+		if_exists: str, default 'raise error'
+			Determines the behavior to follow if this method is called
+			and the run already exists. For available options see documentation
+			of `RunBureaucrat.create_run`.
 		
 		Returns
 		-------
@@ -287,13 +313,10 @@ class TaskBureaucrat(RunBureaucrat):
 			A newly created `RunBureaucrat` ready to handle the new subrun.
 		"""
 		some_bureaucrat = RunBureaucrat(path_to_the_run=self._path_to_directory_of_subruns_of_task(self.task_name)/subrun_name)
-		some_bureaucrat.create_run()
+		some_bureaucrat.create_run(if_exists=if_exists)
 		return some_bureaucrat
 	
 	def clean_directory_of_my_task(self):
 		"""Deletes all content in the default output directory."""
 		for p in self.path_to_directory_of_my_task.iterdir():
-			if p.is_file() or p.is_symlink():
-				p.unlink()
-			elif p.is_dir():
-				rmtree(p)
+			delete_directory_and_or_file_and_subtree(p)
