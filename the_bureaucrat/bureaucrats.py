@@ -191,7 +191,7 @@ class RunBureaucrat:
 			run_name = self.run_name,
 		)
 	
-	def handle_task(self, task_name:str, drop_old_data:bool=True, backup_this_python_file:bool=True):
+	def handle_task(self, task_name:str, drop_old_data:bool=True, backup_this_python_file:bool=True, allowed_exceptions:set=None):
 		"""This method is used to create a new "subordinate bureaucrat" 
 		of type `TaskBureaucrat` that will manage a task (instead of a
 		run) within the run being managed by the current `RunBureaucrat`.
@@ -217,6 +217,11 @@ class RunBureaucrat:
 			be backed up in the respective task directory, i.e. a copy
 			will be created there. Thus, in the future you will be able
 			to know how you did things in case you forget.
+		allowed_exceptions: set of exceptions, default None
+			A set of exceptions that if happen they are not considered errors,
+			for example you may want that if you manualy stop the execution
+			that is not an error so you then `allowed_exceptions={KeyboardInterrupt}`
+			would handle that.
 		
 		Returns
 		-------
@@ -229,11 +234,12 @@ class RunBureaucrat:
 			path_to_the_run = self.path_to_run_directory,
 			task_name = task_name,
 			drop_old_data = drop_old_data,
-			path_to_script_to_backup = Path(traceback.extract_stack()[-2].filename)
+			path_to_script_to_backup = Path(traceback.extract_stack()[-2].filename),
+			allowed_exceptions = allowed_exceptions,
 		)
 	
 class TaskBureaucrat(RunBureaucrat):
-	def __init__(self, path_to_the_run:Path, task_name:str, drop_old_data:bool=True, path_to_script_to_backup:Path=None):
+	def __init__(self, path_to_the_run:Path, task_name:str, drop_old_data:bool=True, path_to_script_to_backup:Path=None, allowed_exceptions:set=None):
 		"""Create a `TaskBureaucrat`.
 		
 		Arguments
@@ -246,6 +252,11 @@ class TaskBureaucrat(RunBureaucrat):
 			If `True`, the directory for this task will be cleaned when
 			this bureaucrat begins operating. Otherwise, any previous data
 			will be untouched.
+		allowed_exceptions: set of exceptions, default None
+			A set of exceptions that if happen they are not considered errors,
+			for example you may want that if you manualy stop the execution
+			that is not an error so you then `allowed_exceptions={KeyboardInterrupt}`
+			would handle that.
 		"""
 		if not exists_run(path_to_the_run.parent, path_to_the_run.parts[-1]):
 			raise ValueError(f'`path_to_the_run` is {path_to_the_run} which does not look like the directory of a run...')
@@ -253,6 +264,7 @@ class TaskBureaucrat(RunBureaucrat):
 		self._task_name = task_name
 		self._drop_old_data = drop_old_data
 		self._path_to_script_to_backup = path_to_script_to_backup
+		self._allowed_exceptions = allowed_exceptions if allowed_exceptions is not None else {}
 	
 	@property
 	def task_name(self)->str:
@@ -279,7 +291,7 @@ class TaskBureaucrat(RunBureaucrat):
 		self._already_did_my_job = True
 		
 		with open(self.path_to_directory_of_my_task/Path('bureaucrat_task_report.txt'), 'w') as ofile:
-			if all([exc is None for exc in [exc_type, exc_value, exc_traceback]]): # This means there was no error, see https://docs.python.org/3/reference/datamodel.html#object.__exit__
+			if all([exc is None for exc in [exc_type, exc_value, exc_traceback]]) or exc_type in self._allowed_exceptions: # This means there was no error, see https://docs.python.org/3/reference/datamodel.html#object.__exit__
 				print('exit_status: task completed successfully with no errors :)', file=ofile)
 				print(f'The sole purpose of this file is to indicate that this task was completed with no errors on {datetime.datetime.now()}.', file=ofile)
 			else: # If there was any kind of error...
