@@ -73,6 +73,20 @@ class RunBureaucrat:
 			self._temporary_directory = tempfile.TemporaryDirectory()
 		return Path(self._temporary_directory.name)
 	
+	@property
+	def parent(self):
+		"""Returns a `RunBureaucrat` pointing to the parent of this instance,
+		if it does not exist raises `RuntimeError`."""
+		p = self.path_to_run_directory.parent.parent.parent
+		if exists_run(p.parent, p.name) == False:
+			raise RuntimeError(f'No parent bureaucrat found for "{self.path_to_run_directory}"')
+		return RunBureaucrat(p)
+	
+	def exists(self):
+		"""Returns `True` or `False` depending on whether the run already
+		exists in the file system or not."""
+		return exists_run(path_where_to_find_the_run = self.path_to_run_directory.parent, run_name = self.run_name)
+	
 	def _path_to_directory_of_subruns_of_task(self, task_name:str)->Path:
 		"""Returns a `Path` pointing to where the subruns should be found."""
 		return self.path_to_directory_of_task(task_name=task_name)/'subruns'
