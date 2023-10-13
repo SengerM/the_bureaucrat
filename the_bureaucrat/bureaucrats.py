@@ -183,7 +183,7 @@ class RunBureaucrat:
 		tasks_not_run = [task_name for task_name in tasks_names if not self.was_task_run_successfully(task_name)]
 		all_tasks_were_run = len(tasks_not_run) == 0
 		if raise_error == True and not all_tasks_were_run:
-			raise RuntimeError(f"Task(s) {tasks_not_run} was(were)n't successfully run beforehand on run {repr(self.run_name)} located in {self.path_to_run_directory}.")
+			raise RuntimeError(f"Task(s) {tasks_not_run} was(were)n't successfully run beforehand on run {self.pseudopath} located in {self.path_to_run_directory}.")
 		return all_tasks_were_run
 	
 	def create_run(self, if_exists:str='raise error'):
