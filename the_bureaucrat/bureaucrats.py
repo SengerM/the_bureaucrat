@@ -79,8 +79,23 @@ class RunBureaucrat:
 		if it does not exist raises `RuntimeError`."""
 		p = self.path_to_run_directory.parent.parent.parent
 		if exists_run(p.parent, p.name) == False:
-			raise RuntimeError(f'No parent bureaucrat found for "{self.path_to_run_directory}"')
+			return None
 		return RunBureaucrat(p)
+	
+	@property
+	def pseudopath(self)->Path:
+		"""Returns the 'pseudopath' to this bureaucrat, this means the
+		path counting only the `RunBureaucrat` instances, not the directories.
+		If the run does not exist in the file system, `None` is returned."""
+		if self.exists() == False:
+			self._pseudopath = None
+		else:
+			pseudopath = [self]
+			while pseudopath[0].parent is not None:
+				pseudopath.insert(0, pseudopath[0].parent)
+			self._pseudopath = '/'.join([b.run_name for b in pseudopath])
+			self._pseudopath = Path(self._pseudopath)
+		return self._pseudopath
 	
 	def exists(self):
 		"""Returns `True` or `False` depending on whether the run already
