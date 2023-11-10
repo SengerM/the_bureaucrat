@@ -51,9 +51,7 @@ class RunBureaucrat:
 			A path to the run. The last element of the path will be the
 			run name.
 		"""
-		if not isinstance(path_to_the_run, Path):
-			raise TypeError(f'`path_to_the_run` must be an instance of {Path}, received object of type {type(path_to_the_run)}. ')
-		self._path_to_the_run = path_to_the_run
+		self._path_to_the_run = Path(path_to_the_run)
 	
 	@property
 	def path_to_run_directory(self)->Path:
@@ -76,7 +74,7 @@ class RunBureaucrat:
 	@property
 	def parent(self):
 		"""Returns a `RunBureaucrat` pointing to the parent of this instance,
-		if it does not exist raises `RuntimeError`."""
+		if it does not exist, returns `None`."""
 		p = self.path_to_run_directory.parent.parent.parent
 		if exists_run(p.parent, p.name) == False:
 			return None
