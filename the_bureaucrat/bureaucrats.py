@@ -7,6 +7,12 @@ import tempfile
 import traceback
 import shutil
 
+warnings.warn(
+	f'`the_bureaucrat` is deprecated, please consider using `datanodes` https://github.com/SengerM/datanodes',
+	DeprecationWarning, 
+	stacklevel = 2,
+)
+
 def find_ugly_characters_better_to_avoid_in_paths(path:Path):
 	"""Returns a set of characters that are considered as not nice options
 	within a Path (e.g. a white space, better to avoid), if any of such

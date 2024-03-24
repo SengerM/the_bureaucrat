@@ -2,6 +2,10 @@
 
 A package to help organizing data and results in a directory structure, cross platform and transparent.
 
+# Deprecation
+
+I am today deprecating this package in favor of the new one [datanodes](https://github.com/SengerM/datanodes). I keep this package untouched and alive because I have several projects that use it.
+
 # Installation
 
 ```
